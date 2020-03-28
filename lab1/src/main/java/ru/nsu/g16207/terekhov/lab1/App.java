@@ -11,20 +11,15 @@ import org.apache.logging.log4j.Logger;
 @Data
 public class App {
     private static final Logger logger = LogManager.getLogger(App.class.getName());
-    private OpenStreetMapStatsProcessing openStreetMapStatsProcessing;
 
     public String getGreeting() {
         return "Processing stats was started.";
-    }
-
-    public App() {
-        openStreetMapStatsProcessing = new OpenStreetMapStatsProcessing();
     }
 
 
     public static void main(String[] args) {
         App app = new App();
         app.getGreeting();
-        app.openStreetMapStatsProcessing.processStats();
+
     }
 }
