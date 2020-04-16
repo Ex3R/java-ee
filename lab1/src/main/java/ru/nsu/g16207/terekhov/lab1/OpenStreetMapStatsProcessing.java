@@ -75,7 +75,7 @@ public class OpenStreetMapStatsProcessing {
                             uidMarksMap.put(uid, ++marks);
                         } else {
                             logger.debug(format("Uid %s found first time, his nodes marks is initial", uid));
-                            userChangesMap.put(uid, 0L);
+                            uidMarksMap.put(uid, 0L);
                         }
                     }
 
@@ -118,9 +118,9 @@ public class OpenStreetMapStatsProcessing {
 
         StringBuilder uidMarksOutput = new StringBuilder("second\n");
         sortedUidMarksList.stream().limit(50).forEach(uidMarks -> {
-            logger.info((format("Uid %s amount of marks is %s", uidMarks.getUid(), uidMarks.getUid())));
+            logger.info((format("Uid %s amount of marks is %s", uidMarks.getUid(), uidMarks.getAmountOfMarks())));
             uidMarksOutput
-                    .append((format("Uid %s amount of marks is %s", uidMarks.getUid(), uidMarks.getUid())))
+                    .append((format("Uid %s amount of marks is %s", uidMarks.getUid(), uidMarks.getAmountOfMarks())))
                     .append("\n");
         });
 
