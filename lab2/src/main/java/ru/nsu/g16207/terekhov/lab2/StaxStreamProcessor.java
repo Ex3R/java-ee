@@ -17,6 +17,7 @@ public class StaxStreamProcessor implements AutoCloseable {
     private final XMLStreamReader reader;
 
     public StaxStreamProcessor(InputStream is) throws XMLStreamException {
+        FACTORY.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, false);
         reader = FACTORY.createXMLStreamReader(is);
     }
 
@@ -34,4 +35,5 @@ public class StaxStreamProcessor implements AutoCloseable {
             }
         }
     }
+
 }
