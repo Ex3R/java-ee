@@ -13,19 +13,14 @@ plugins {
     id 'application'
 }
 
-apply plugin: 'java'
-sourceCompatibility = JavaVersion.VERSION_12
-targetCompatibility = JavaVersion.VERSION_12
-
 repositories {
-    // Use jcenter for resolving dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
-    // This dependency is used by the application.
+
+
     implementation 'com.google.guava:guava:28.1-jre'
 
     // Use JUnit Jupiter API for testing.
@@ -53,9 +48,58 @@ dependencies {
 
     compile "org.hibernate:hibernate-validator:6.0.13.Final"
     compile "org.glassfish:javax.el:3.0.0"
-    
+
+    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    compile group: 'com.sun.xml.bind', name: 'jaxb-core', version: '2.3.0.1'
+    compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.3.1'
+
+
 
 }
+
+/*
+apply plugin: 'java'
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8*/
+
+project.ext {
+    jaxbTargetDir = file("src/main/java")
+
+}
+
+
+configurations {
+    xsd2java
+}
+
+dependencies {
+    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    compile group: 'com.sun.xml.bind', name: 'jaxb-core', version: '2.3.0.1'
+    compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.3.1'
+    xsd2java "com.sun.xml.bind:jaxb-xjc:2.2.6"
+    xsd2java "com.sun.xml.bind:jaxb-impl:2.2.6"
+}
+
+task xsd2java() {
+
+    doLast {
+        jaxbTargetDir.mkdirs()
+
+        ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJCTask', classpath: configurations.xsd2java.asPath)
+        ant.jaxbTargetDir = jaxbTargetDir
+
+
+        ant.xjc(
+                destdir: '${jaxbTargetDir}',
+                package: 'ru.nsu.g16207.terekhov.lab2.model.osm',
+                schema: 'src/main/resources/schema.xsd'
+        )
+
+
+    }
+}
+
+
 
 application {
     // Define the main class for the application.

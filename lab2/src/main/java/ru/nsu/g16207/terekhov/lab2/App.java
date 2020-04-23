@@ -8,6 +8,8 @@ import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.xml.bind.JAXBException;
+
 @Data
 public class App {
     private static final Logger logger = LogManager.getLogger(App.class.getName());
@@ -17,12 +19,12 @@ public class App {
         return "Processing stats was started.";
     }
 
-    public App() {
+    public App() throws JAXBException {
         openStreetMapStatsProcessing = new OpenStreetMapStatsProcessing();
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws JAXBException {
         App app = new App();
         app.getGreeting();
         app.openStreetMapStatsProcessing.processStats();

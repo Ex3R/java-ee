@@ -5,11 +5,13 @@ package ru.nsu.g16207.terekhov.lab2;
 
 import org.junit.jupiter.api.Test;
 
+import javax.xml.bind.JAXBException;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class AppTest {
     @Test
-    void appHasAGreeting() {
+    void appHasAGreeting() throws JAXBException {
         App classUnderTest = new App();
         assertNotNull(classUnderTest.getGreeting(), "app should have a greeting");
     }

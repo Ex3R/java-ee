@@ -4,85 +4,154 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.nsu.g16207.terekhov.lab2.model.UidMarks;
 import ru.nsu.g16207.terekhov.lab2.model.UserChanges;
+import ru.nsu.g16207.terekhov.lab2.model.osm.Node;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static java.lang.String.format;
 
 public class OpenStreetMapStatsProcessing {
     private static final Logger logger = LogManager.getLogger(OpenStreetMapStatsProcessing.class.getName());
     private Map<String, Long> userChangesMap;
-    private Map<String, Long> uidMarksMap;
+    private Map<Integer, Long> uidMarksMap;
     private List<UserChanges> sortedUserChangesList;
     private List<UidMarks> sortedUidMarksList;
     private long amountOfNodes = 0;
+    private JAXBContext jaxbContext = JAXBContext.newInstance(Node.class);
+    private Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-    public OpenStreetMapStatsProcessing() {
+    public OpenStreetMapStatsProcessing() throws JAXBException {
         userChangesMap = new HashMap<>();
         uidMarksMap = new HashMap<>();
     }
 
     public void processStats() {
         URL resource = getClass().getClassLoader().getResource("RU-NVS.osm");
-        try (StaxStreamProcessor processor = new StaxStreamProcessor(Files.newInputStream(Path.of(Objects.requireNonNull(resource).getPath())))) {
+        try (StaxStreamProcessor processor = new StaxStreamProcessor(Files.newInputStream(Paths.get(Objects.requireNonNull(resource).getPath())))) {
             XMLStreamReader reader = processor.getReader();
             while (reader.hasNext()) {       // while not end of XML
                 int event = reader.next();
                 if (event == XMLEvent.START_ELEMENT && "node".equals(reader.getLocalName())) {
-                    amountOfNodes++;
-                    int userNameIndex = -1;
-                    int uidIndex = -1;
-                    for (int i = 0; i < reader.getAttributeCount(); i++) {
-                        final String attributeName = reader.getAttributeLocalName(i);
-                        if ("user".equals(attributeName)) {
-                            userNameIndex = i;
-                        }
+                    Node node = (Node) unmarshaller.unmarshal(reader);
 
-                        if ("uid".equals(attributeName)) {
-                            uidIndex = i;
-                        }
+                    userChangesMap.compute(node.getUser(), (k, v) ->)
+                    if (userChangesMap.containsKey(node.getUser())) {
+                        long userChanges = userChangesMap.get(node.getUser());
+                        logger.debug(format("User with name %s already in map, his changes amount is %s", node.getUser(), userChanges));
+                        userChangesMap.put(node.getUser(), ++userChanges);
+                    } else {
+                        logger.debug(format("User with name %s found first time, his changes amount is initial", node.getUser()));
+                        userChangesMap.put(node.getUser(), 0L);
                     }
 
-                    if (userNameIndex == -1) {
-                        logger.error("in node property 'user' not found");
+                    if (uidMarksMap.containsKey(node.getUid())) {
+                        long marks = uidMarksMap.get(node.getUid());
+                        logger.debug(format("Uid %s already in map, his nodes marks amount is %s", node.getUid(), marks));
+                        uidMarksMap.put(node.getUid(), ++marks);
                     } else {
-                        String user = reader.getAttributeValue(userNameIndex);
-                        if (userChangesMap.containsKey(user)) {
-                            long userChanges = userChangesMap.get(user);
-                            logger.debug(format("User with name %s already in map, his changes amount is %s", user, userChanges));
-                            userChangesMap.put(user, ++userChanges);
-                        } else {
-                            logger.debug(format("User with name %s found first time, his changes amount is initial", user));
-                            userChangesMap.put(user, 0L);
-                        }
-                    }
-
-                    if (uidIndex == -1) {
-                        logger.error("in node property 'uid' not found");
-                    } else {
-                        String uid = reader.getAttributeValue(uidIndex);
-                        if (uidMarksMap.containsKey(uid)) {
-                            long marks = uidMarksMap.get(uid);
-                            logger.debug(format("Uid %s already in map, his nodes marks amount is %s", uid, marks));
-                            uidMarksMap.put(uid, ++marks);
-                        } else {
-                            logger.debug(format("Uid %s found first time, his nodes marks is initial", uid));
-                            uidMarksMap.put(uid, 0L);
-                        }
+                        logger.debug(format("Uid %s found first time, his nodes marks is initial", node.getUid()));
+                        uidMarksMap.put(node.getUid(), 0L);
                     }
 
                 }
             }
 
+        } catch (XMLStreamException | IOException | JAXBException e) {
+            e.printStackTrace();
+        }
+    }
 
+}
+
+           /* Node node = null;
+            while (streamReader.hasNext()) {       // while not end of XML
+                XMLEvent event = streamReader.nextEvent();
+                if (event.isStartElement()) {
+                    StartElement startElement = event.asStartElement();
+                    if (startElement.getName().getLocalPart().equals("node")) {
+                        node = new Node();
+                        Iterator<Attribute> attributes = startElement
+                                .getAttributes();
+
+                        while (attributes.hasNext()) {
+                            Attribute attribute = attributes.next();
+                            if (attribute.getName().toString().equals("id")) {
+                                node.setId(attribute.getValue());
+                                continue;
+                            }
+
+                            if (attribute.getName().toString().equals("version")) {
+                                node.setVersion(attribute.getValue());
+                                continue;
+                            }
+
+                            if (attribute.getName().toString().equals("timestamp")) {
+                                node.setTimestamp(attribute.getValue());
+                                continue;
+                            }
+
+                            if (attribute.getName().toString().equals("uid")) {
+                                node.setUid(attribute.getValue());
+                                continue;
+                            }
+
+
+                            if (attribute.getName().toString().equals("user")) {
+                                node.setUser(attribute.getValue());
+                                continue;
+                            }
+
+
+                            if (attribute.getName().toString().equals("changeset")) {
+                                node.setChangeset(attribute.getValue());
+                                continue;
+                            }
+
+                            if (attribute.getName().toString().equals("lat")) {
+                                node.setLat(Double.valueOf(attribute.getValue()));
+                                continue;
+                            }
+
+                            if (attribute.getName().toString().equals("lon")) {
+                                node.setLon(Double.valueOf(attribute.getValue()));
+                                continue;
+                            }
+                        }
+
+                        if (userChangesMap.containsKey(node.getUser())) {
+                            long userChanges = userChangesMap.get(node.getUser());
+                            logger.debug(format("User with name %s already in map, his changes amount is %s", node.getUser(), userChanges));
+                            userChangesMap.put(node.getUser(), ++userChanges);
+                        } else {
+                            logger.debug(format("User with name %s found first time, his changes amount is initial", node.getUser()));
+                            userChangesMap.put(node.getUser(), 0L);
+                        }
+
+                        if (uidMarksMap.containsKey(node.getUid())) {
+                            long marks = uidMarksMap.get(node.getUid());
+                            logger.debug(format("Uid %s already in map, his nodes marks amount is %s", node.getUid(), marks));
+                            uidMarksMap.put(node.getUid(), ++marks);
+                        } else {
+                            logger.debug(format("Uid %s found first time, his nodes marks is initial", node.getUid()));
+                            uidMarksMap.put(node.getUid(), 0L);
+                        }
+
+                    }
+                }
+            }
         } catch (XMLStreamException | IOException e) {
             e.printStackTrace();
             logger.error("error on processing stats");
@@ -126,5 +195,5 @@ public class OpenStreetMapStatsProcessing {
 
         System.out.println(userChangesOutput);
         System.out.println(uidMarksOutput);
-    }
-}
+    }*/
+
