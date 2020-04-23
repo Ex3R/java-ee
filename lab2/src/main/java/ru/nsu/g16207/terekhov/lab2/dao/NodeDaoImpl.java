@@ -1,17 +1,17 @@
 package ru.nsu.g16207.terekhov.lab2.dao;
 
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import ru.nsu.g16207.terekhov.lab2.config.ConnectionFactory;
 import ru.nsu.g16207.terekhov.lab2.model.osm.Node;
 
 import java.sql.*;
+import java.util.List;
 import java.util.Optional;
 
 public class NodeDaoImpl implements NodeDao {
     @Override
     public boolean insertNodeUsingPreparedStatement(Node node) {
         try (Connection connection = ConnectionFactory.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO nodes VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO nodes VALUES (default,?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, node.getId());
             ps.setInt(2, node.getVersion());
             Timestamp timestamp = new Timestamp(node.getTimestamp().toGregorianCalendar().getTimeInMillis());
@@ -39,7 +39,7 @@ public class NodeDaoImpl implements NodeDao {
             Statement statement = connection.createStatement();
 
             Timestamp timestamp = new Timestamp(node.getTimestamp().toGregorianCalendar().getTimeInMillis());
-            String query = String.format("INSERT INTO nodes VALUES (%d, %d, '%tF', %d, '%s', %d, %f, %f)",
+            String query = String.format("INSERT INTO nodes VALUES (default, %d, %d, '%tF', %d, '%s', %d, %f, %f)",
                     node.getId(),
                     node.getVersion(),
                     timestamp,
@@ -56,6 +56,37 @@ public class NodeDaoImpl implements NodeDao {
             return false;
         }
 
+    }
+
+    @Override
+    public void insertBatch(List<Node> nodes) {
+        try (Connection connection = ConnectionFactory.getConnection()) {
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO nodes VALUES (default,?, ?, ?, ?, ?, ?, ?, ?)");
+            int count = 0;
+
+            for (Node node : nodes) {
+                ps.setInt(1, node.getId());
+                ps.setInt(2, node.getVersion());
+                Timestamp timestamp = new Timestamp(node.getTimestamp().toGregorianCalendar().getTimeInMillis());
+                ps.setTimestamp(3, timestamp);
+                ps.setInt(4, node.getUid());
+                ps.setString(5, node.getUser());
+                ps.setInt(6, node.getChangeset());
+                ps.setDouble(7, node.getLat());
+                ps.setDouble(8, node.getLon());
+                ps.addBatch();
+                count++;
+
+                if (count % 100 == 0 || count == nodes.size()) {
+                    ps.executeBatch();
+                    count = 0;
+                }
+
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
 
@@ -75,7 +106,7 @@ public class NodeDaoImpl implements NodeDao {
     }
 
     public static void main(String[] args) {
-        NodeDaoImpl nodeDao = new NodeDaoImpl();
+    /*    NodeDaoImpl nodeDao = new NodeDaoImpl();
         Node node = new Node();
         node.setId(321);
         node.setVersion(321);
@@ -87,6 +118,6 @@ public class NodeDaoImpl implements NodeDao {
         node.setChangeset(555);
         node.setLat(12.22);
         node.setLon(15.22);
-        nodeDao.insertNodeUsingStatement(node);
+        nodeDao.insertNodeUsingStatement(node);*/
     }
 }

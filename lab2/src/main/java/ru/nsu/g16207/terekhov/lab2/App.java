@@ -13,20 +13,20 @@ import javax.xml.bind.JAXBException;
 @Data
 public class App {
     private static final Logger logger = LogManager.getLogger(App.class.getName());
-    private OpenStreetMapStatsProcessing openStreetMapStatsProcessing;
+    private final NodeLoader nodeLoader;
 
     public String getGreeting() {
         return "Processing stats was started.";
     }
 
     public App() throws JAXBException {
-        openStreetMapStatsProcessing = new OpenStreetMapStatsProcessing();
+        nodeLoader = new NodeLoader();
     }
 
 
     public static void main(String[] args) throws JAXBException {
         App app = new App();
         app.getGreeting();
-        app.openStreetMapStatsProcessing.processStats();
+        app.nodeLoader.loadNodesWithDifferentWays();
     }
 }
