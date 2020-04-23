@@ -14,11 +14,12 @@ public class DatabaseConfig {
     static final String USER = "postgres";
     static final String PASS = "postgres";
 
-    public static void initDatabeses() {
-        logger.info("started script init database");
+    public static void initTables() {
+        logger.info("started script init tables");
         try (Connection con = DriverManager.getConnection(DB_URL, USER, PASS)) {
             PreparedStatement pst = con.prepareStatement("CREATE TABLE IF NOT EXISTS nodes (\n" +
-                    "                                       id INTEGER PRIMARY KEY,\n" +
+                    "                                       id serial PRIMARY KEY,\n" +
+                    "                                       node_id INTEGER ,\n" +
                     "                                       version INTEGER,\n" +
                     "                                       timestamp date,\n" +
                     "                                       uid INTEGER,\n" +
@@ -39,26 +40,27 @@ public class DatabaseConfig {
                     ");");
             pst.execute();
 
-            logger.info("databased created successfully");
+            logger.info("tables created successfully");
 
         } catch (SQLException ex) {
-            logger.error("error on creating databases");
+            logger.error("error on creating tables");
             ex.printStackTrace();
         }
     }
 
-    public static void dropDatabases() {
-        logger.info("started script drop database");
+    public static void dropTables() {
+        logger.info("started script drop tables");
         try (Connection con = DriverManager.getConnection(DB_URL, USER, PASS)) {
-            PreparedStatement pst = con.prepareStatement("DROP DATABASE nodes");
+            PreparedStatement pst = con.prepareStatement("DROP TABLE IF EXISTS tags");
             pst.execute();
-            pst = con.prepareStatement("DROP DATABASE tags");
+            pst = con.prepareStatement("DROP TABLE IF EXISTS nodes");
             pst.execute();
 
-            logger.info("databased deletes successfully");
+
+            logger.info("tables deleted successfully");
 
         } catch (SQLException ex) {
-            logger.error("error on deleting databases");
+            logger.error("error on deleting tables");
             ex.printStackTrace();
         }
     }

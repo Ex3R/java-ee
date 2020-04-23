@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS nodes, tags;
 CREATE TABLE IF NOT EXISTS nodes
 (
     id        INTEGER PRIMARY KEY,
+    node_id   INTEGER,
     version   INTEGER,
     timestamp date,
     uid       INTEGER,
