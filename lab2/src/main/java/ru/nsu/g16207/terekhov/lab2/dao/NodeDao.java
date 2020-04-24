@@ -58,4 +58,5 @@ public interface NodeDao {
     /*http://zetcode.com/java/postgresql/*/
     /*https://www.postgresqltutorial.com/postgresql-create-schema/*/
     /*https://docs.oracle.com/javase/7/docs/api/java/sql/PreparedStatement.html*/
+    /*https://dzone.com/articles/building-simple-data-access-layer-using-jdbc*/
 }
