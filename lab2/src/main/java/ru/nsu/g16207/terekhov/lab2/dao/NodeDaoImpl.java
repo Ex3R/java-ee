@@ -92,17 +92,55 @@ public class NodeDaoImpl implements NodeDao {
 
     @Override
     public Optional<Node> getNodeById(Integer id) {
-        return Optional.empty();
+        try (Connection connection = ConnectionFactory.getConnection()) {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM nodes WHERE id=" + id);
+            if (rs.next()) {
+                return Optional.ofNullable(extractNodeFromResultSet(rs));
+            } else {
+                return Optional.empty();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     @Override
     public boolean updateNode(Node node) {
-        return false;
+        try (Connection connection = ConnectionFactory.getConnection()) {
+            PreparedStatement ps = connection.prepareStatement(
+                    "UPDATE nodes SET id = ?, version = ?, timestamp = ?, uid = ?, user = ?, changeset = ?, lat = ?, lon = ? WHERE id = ?");
+
+            ps.setInt(1, node.getId());
+            ps.setInt(2, node.getVersion());
+            Timestamp timestamp = new Timestamp(node.getTimestamp().toGregorianCalendar().getTimeInMillis());
+            ps.setTimestamp(3, timestamp);
+            ps.setInt(4, node.getUid());
+            ps.setString(5, node.getUser());
+            ps.setInt(6, node.getChangeset());
+            ps.setDouble(7, node.getLat());
+            ps.setDouble(8, node.getLon());
+
+            int i = ps.executeUpdate();
+            return i == 1;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 
     @Override
     public boolean deleteNode(Integer id) {
-        return false;
+        try (Connection connection = ConnectionFactory.getConnection()) {
+            Statement stmt = connection.createStatement();
+            int i = stmt.executeUpdate("DELETE FROM nodes WHERE id=" + id);
+            return i == 1;
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 
     public static void main(String[] args) {

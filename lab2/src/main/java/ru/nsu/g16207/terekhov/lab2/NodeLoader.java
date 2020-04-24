@@ -85,6 +85,7 @@ public class NodeLoader {
             e.printStackTrace();
         }
 
+        logger.info("amountOfNodes: " + amountOfNodes);
         logger.info("Method loadNodesUsingStatement took: " + timer.stop());
     }
 
@@ -119,6 +120,7 @@ public class NodeLoader {
             e.printStackTrace();
         }
 
+        logger.info("amountOfNodes: " + amountOfNodes);
         logger.info("Method loadNodesUsingStatementWithBatch took: " + timer.stop());
     }
 
