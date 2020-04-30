@@ -56,5 +56,17 @@ public class NodeController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("getNodesByLocationInRadius")
+    public ResponseEntity<List<NodeEntity>> getNodesByLocationInRadius(
+            @RequestParam(value = "lat", required = false) Float lat,
+            @RequestParam(value = "lon", required = false) Float lon,
+            @RequestParam(value = "radius", required = false) Integer radius,
+            @RequestParam(value = "page", required = false) Integer page) {
+        //for test
+        List<NodeEntity> nodes = osmService.getNodesByLocationInRadius(55.0282215f, 82.9234476f, 100000, 0);
+        //List<NodeEntity> nodes = osmService.getNodesByLocationInRadius(lat, lon, radius, page);
+        return new ResponseEntity<>(nodes, HttpStatus.OK);
+    }
+
 
 }

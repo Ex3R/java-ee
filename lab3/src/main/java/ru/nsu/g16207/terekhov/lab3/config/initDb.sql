@@ -1,5 +1,8 @@
 DROP TABLE IF EXISTS nodes, tags;
 
+/*CREATE EXTENSION cube;
+CREATE EXTENSION earthdistance;*/
+
 CREATE TABLE IF NOT EXISTS nodes
 (
     node_id   serial PRIMARY KEY,

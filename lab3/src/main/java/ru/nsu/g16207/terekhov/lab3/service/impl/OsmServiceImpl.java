@@ -49,6 +49,7 @@ public class OsmServiceImpl implements OSMService {
 
     @Override
     public NodeEntity updateNode(NodeEntity nodeEntity) {
+
         return nodeEntityRepository.save(nodeEntity);
     }
 
@@ -60,6 +61,17 @@ public class OsmServiceImpl implements OSMService {
     @Override
     public List<NodeEntity> getAll(int page) {
         Page<NodeEntity> nodeEntityPage = nodeEntityRepository.findAllBy(PageRequest.of(page, pageSize));
+        int totalPages = nodeEntityPage.getTotalPages();
+        if (page >= totalPages) {
+            return null;
+        }
+
+        return nodeEntityPage.getContent();
+    }
+
+    @Override
+    public List<NodeEntity> getNodesByLocationInRadius(float lat, float lon, int radius, int page) {
+        Page<NodeEntity> nodeEntityPage = nodeEntityRepository.findAllNodesByLocationAndRadius(lat, lon, radius, PageRequest.of(page, pageSize));
         int totalPages = nodeEntityPage.getTotalPages();
         if (page >= totalPages) {
             return null;

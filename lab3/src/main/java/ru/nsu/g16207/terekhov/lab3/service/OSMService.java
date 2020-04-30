@@ -22,5 +22,7 @@ public interface OSMService {
 
     List<NodeEntity> getAll(int page);
 
+    List<NodeEntity> getNodesByLocationInRadius(float lat, float lon, int radius, int page);
+
 
 }
