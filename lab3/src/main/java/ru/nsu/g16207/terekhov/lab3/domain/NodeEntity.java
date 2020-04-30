@@ -51,7 +51,7 @@ public class NodeEntity {
     private Double lon;
 
     @JsonBackReference
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "nodeEntity")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "nodeEntity", orphanRemoval = true)
     private List<TagEntity> tags = new ArrayList<>();
 
     public static NodeEntity of(Node node) {
@@ -113,17 +113,15 @@ public class NodeEntity {
         }
 
         tags.add(tagEntity);
-
         tagEntity.setNodeEntity(this);
     }
 
     public void removeTag(TagEntity tagEntity) {
-        if (tags.contains(tagEntity)) {
+        if (!tags.contains(tagEntity)) {
             return;
         }
 
         tags.remove(tagEntity);
-
         tagEntity.removeNodeEntity(this);
     }
 

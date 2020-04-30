@@ -24,7 +24,7 @@ public class TagEntity {
     @Column(name = "value")
     private String value;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "node_id", nullable = false)
     private NodeEntity nodeEntity;
 
