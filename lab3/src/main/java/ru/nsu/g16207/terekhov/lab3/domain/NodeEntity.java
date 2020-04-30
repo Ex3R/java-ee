@@ -122,7 +122,7 @@ public class NodeEntity {
         }
 
         tags.remove(tagEntity);
-        tagEntity.removeNodeEntity(this);
+        tagEntity.setupNodeEntity(null);
     }
 
 

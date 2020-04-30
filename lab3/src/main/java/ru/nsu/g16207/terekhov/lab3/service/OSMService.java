@@ -11,13 +11,13 @@ public interface OSMService {
 
     Optional<NodeEntity> findNodeByNodeId(Long nodeId);
 
-    Optional<NodeEntity> findNodeById(Integer Id);
+    Optional<NodeEntity> findNodeById(Integer id);
 
     NodeEntity createNode(NodeEntity nodeEntity);
 
     NodeEntity updateNode(NodeEntity nodeEntity);
 
-    boolean removeNodeByNodeId(Long nodeId);
+    void removeNodeByNodeId(Long nodeId);
 
 
 }
